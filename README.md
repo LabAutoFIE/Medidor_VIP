@@ -5,14 +5,14 @@
 
 # Medidor de corriente potencia y tensión por I2C con CJMCU-226 / INA226:
 **Institución:** FIE Facultad de Ingeniería del Ejército "Grl Div Manuel N. Savio"
-**Autor:** Prof. Ing. Gerhard E.RAITH  
-**Fecha:** 29/10/20225  
-**Versión:** 1.0  *(Preliminar prueba módulo CJMCU-226, INA226)*
-**Versión:** 1.1  *(salida datos archivo CSV)*
+**Autor:** Prof. Ing. Gerhard E.RAITH
+**Fecha:** 29/10/20225
+**Versión:** 1.0  (Preliminar prueba módulo CJMCU-226, INA226)
+**Versión:** 1.1  (salida datos archivo CSV)
 **Idioma:** Español / Inglés
 
 ## Descripción técnica:
-**Versión:** 1.0
+**Versión: 1.0**
 Este sistema permite la medición de corriente, tensión y potencia mediante el módulo CJMCU-226 basado en el chip INA226 de Texas Instruments. La comunicación se realiza por protocolo I2C con una placa Arduino Uno. El sistema está diseñado para monitoreo energético en dispositivos de laboratorio.
 ### 📡 Visualización de datos por puerto serie:
 - Interfaz: USB entre Arduino y PC
@@ -26,7 +26,7 @@ Este sistema permite la medición de corriente, tensión y potencia mediante el 
   - Tensión [V]
   - Corriente [mA]
   - Potencia [mW]
-  **Versión:** 1.1 *(implementar luego se verifique el correcto funcionamiento del modulo INA226 por puerto serie en PC)*
+  **Versión: 1.1** *(implementar luego se verifique el correcto funcionamiento del modulo INA226 por puerto serie en PC)*
   ### 📄 Exportación de datos en formato CSV:
 - Formato: `Tiempo,Tensión [V],Corriente [mA],Potencia [mW]`
 - Separador: coma `,`
@@ -38,9 +38,9 @@ Este sistema permite la medición de corriente, tensión y potencia mediante el 
 - Registro: cada 10 segundos mientras `medicionActiva == true`
 
 En este caso en particular, se aplica a la descarga de una pila, registrando la corriente y la tensión de descarga de acuerdo a la RL *(resistencia de carga)*. Así se obtienen las curvas de tensión [V] potencia [W] e intensidad [A] respecto del tiempo [t]. Con ello la idea es analizar la energía que es capaz de suministrar la pila, para una determinada profundidad de descarga **DoD**.
-<div align="center">  
-![Circuito de descarga de la pila](img/circuito_descarga.png)
-</div>
+<p align="center">
+<img src="img/circuito_descarga.png" alt="Circuito de descarga de la Pila"/>
+</p>
 
 ## Estructura Proyecto:
 ```
@@ -75,10 +75,9 @@ En este caso en particular, se aplica a la descarga de una pila, registrando la 
 - Dependencias gestionadas en `platformio.ini`
 
 ### Especificaciones CJMCU-226:
-<div align="center">
-![Modulo CJMCU-226](img/modulo-cjmcu-226.png)
-</div>
-
+<p align="center">
+<img scr="img/modulo-cjmcu-226.png" alt="Modulo CJMCU-226" width="250"/>
+</p>
 - Tensión de alimentación: 2,7 a 5,5 [V]
 - Consumo de corriente: 300 [µA] *(típico)*
 - Rango de tensión de bus: 0 a 36 [V]
@@ -115,8 +114,9 @@ En este caso en particular, se aplica a la descarga de una pila, registrando la 
 - Carga (Resistencia para producir la profundidad de descarga objetivo)
 
 ## Conexión:
-![Esquema de conexión ardruino - INA226](img/esquema_conexion_ardruino-ina.png)
-
+<p align="center">
+<img scr="img/esquema_conexion_ardruino-ina.png" alt="Esquema de conexión ardruino - INA226" width="400"/>
+</p>
 ### 🔌 Tabla Conexiones eléctricas:
 
 | Componente | Pin terminal |   Arduino Uno  |              Descripción técnica                    |
