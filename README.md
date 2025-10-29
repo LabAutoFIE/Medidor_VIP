@@ -37,12 +37,14 @@ Este sistema permite la medición de corriente, tensión y potencia mediante el 
 - Compatible con: Excel, LibreOffice, Python, MATLAB
 - Registro: cada 10 segundos mientras `medicionActiva == true`
 
-En este caso en particular, se aplica a la descarga de una pila, registrando la corriente y la tensión de descarga de acuerdo a la RL *(resistencia de carga)*. Así se obtienen las curvas de tensión [V] potencia [W] e intensidad [A] respecto del tiempo [t]. Con ello la idea es analizar la energía que es capaz de suministrar la pila, para una determinada profundidad de descarga **DoD**
+En este caso en particular, se aplica a la descarga de una pila, registrando la corriente y la tensión de descarga de acuerdo a la RL *(resistencia de carga)*. Así se obtienen las curvas de tensión [V] potencia [W] e intensidad [A] respecto del tiempo [t]. Con ello la idea es analizar la energía que es capaz de suministrar la pila, para una determinada profundidad de descarga **DoD**.
+<div align="center">  
 ![Circuito de descarga de la pila](img/circuito_descarga.png)
+</div>
 
 ## Estructura Proyecto:
+```
 **medidor_vip/**
-
 ├── **documents/**
 │   └── INA226_TexasInstrumets-DataSheet-EN.pdf
 ├── **img/**
@@ -59,6 +61,7 @@ En este caso en particular, se aplica a la descarga de una pila, registrando la 
 ├── .gitignore
 ├── platformio.ini
 ├── README.md
+```
 
 ### 📦 Dependencias gestionadas por PlatformIO:
 - Todas las bibliotecas externas (como `INA226`) se instalan automáticamente desde `platformio.ini`.
@@ -72,7 +75,10 @@ En este caso en particular, se aplica a la descarga de una pila, registrando la 
 - Dependencias gestionadas en `platformio.ini`
 
 ### Especificaciones CJMCU-226:
+<div align="center">
 ![Modulo CJMCU-226](img/modulo-cjmcu-226.png)
+</div>
+
 - Tensión de alimentación: 2,7 a 5,5 [V]
 - Consumo de corriente: 300 [µA] *(típico)*
 - Rango de tensión de bus: 0 a 36 [V]
@@ -85,7 +91,7 @@ En este caso en particular, se aplica a la descarga de una pila, registrando la 
 - Opciones de promedio configurables
 - 16 direcciones programables
 - Informes de corriente, voltaje y potencia
-- Paquete DGS (VSSOP) de 10 pines
+- Paquete DGS *(VSSOP)* de 10 pines
 - Temperatura de funcionamiento: -40 a 125 [°C]
 
 #### Pines:

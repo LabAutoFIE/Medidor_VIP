@@ -1,20 +1,29 @@
-#include <Arduino.h> // Librería base para Arduino
-#include <Wire.h>    // Librería para comunicación I2C
+#include <Arduino.h> // Librería base p/ Arduino
+#include <Wire.h>    // Librería p/ comunicación I2C
 #include <INA226.h>  // Librería del sensor INA226 (Rob Tillaart)
 
+// --- CONFIGURACIÓN DE PINES Y SENSORES ---
 // Creo instancia sensor INA226 c/ dirección p/ defecto (0x40)
 INA226 ina(0x40);          // Dirección I2C por defecto del INA226 es 0x40
 const int pinPulsador = 2; // PIN D2 digital donde está conectado el pulsador
+
+// --- VARIABLES DE ESTADO Y TEMPORIZACIÓN ---
+bool medicionActiva = false; // Controla si la medición está activa o no
+// Variables para el temporizador de muestreo (10 s[s])
+unsigned long previousMillis = 0;
+const long interval = 10000; // 10000 [ms] = 10 [s]]
 
 void setup()
 {
     Wire.begin();                       // Inicializa el bus I2C
     Serial.begin(9600);                 // Inicializa puerto serie p/ monitoreo
     pinMode(pinPulsador, INPUT_PULLUP); // Usa resistencia interna, pulsador activo en LOW
-    // VERSIÓN 1.1: Salida en formato CSV p/ fácil registro y análisis
+
+    // VERSIÓN 1.1: Salida formato CSV p/ fácil registro y análisis (Descomentar si se usa el formato CSV)
     // Serial.println("Timestamp[s],Tension[V],Corriente[mA],Potencia[mW]"); // Encabezado CSV (quitar comentario luego probar INA226)
 
-    // Escaneo de dispositivos I2C conectados (útil p/ verificar dirección)
+    // --- 1. Escaneo de dispositivos I2C conectados (útil p/ verificar dirección y depuración) ---
+    Serial.println("--- Escaneo I2C ---");
     for (byte address = 1; address < 127; address++)
     {
         Wire.beginTransmission(address);
@@ -24,7 +33,9 @@ void setup()
             Serial.println(address, HEX);
         }
     }
-    // Inicializo sensor INA226
+    Serial.println("--- Fin Escaneo I2C ---");
+
+    // 2. --- Inicializo y Calibración sensor INA226 ---
     if (!ina.begin())
     {
         Serial.println("Error: INA226 no conectado.");
@@ -41,34 +52,62 @@ void setup()
         while (true)
             ; // Detiene el programa si la calibración falla
     }
-    // Configurar tiempos de conversión p/ mayor precisión:
-    ina.setBusVoltageConversionTime(INA226_4200_us);   // Canal de tensión del BUS
-    ina.setShuntVoltageConversionTime(INA226_4200_us); // Canal de tensión del Shunt
-    ina.setAverage(INA226_16_SAMPLES);                 // Promedia 16 muestras
-}
+    Serial.println("INA226 inicializado y calibrado para 0.8 [A] con Rs = 0.1 [Ω].");
 
-bool medicionActiva = false;
+    // Configurar tiempos de conversión p/ mayor precisión:
+    ina.setBusVoltageConversionTime(INA226_4200_us);   // Canal de tensión BUS (más lento = más preciso)
+    ina.setShuntVoltageConversionTime(INA226_4200_us); // Canal de tensión Shunt
+    ina.setAverage(INA226_16_SAMPLES);                 // Promedia 16 muestras
+
+    Serial.println("Listo. Presione pulsador p/ iniciar medición.");
+}
 
 void loop()
 {
-
-    // Lectura de tensión del bus en Volt
+    // --------------------------------------------------------
+    // Paso 1: LECTURA DE TENSIÓN
+    // Es la base p/ lógica de inicio y detención de la medición
+    // --------------------------------------------------------
     float tension = ina.getBusVoltage(); // [V]
-    // Verifica si se presionó el pulsador p/ activar medición y tensión >= 1,1 [V]
-    if (digitalRead(pinPulsador) == LOW && tension >= 1.1)
+    // --------------------------------------------------------
+    // Paso 2: LóÓGICA INICIO.
+    // Solo se activa si la emdición NO está activa y tensión >= 1,1 [V]
+    // --------------------------------------------------------
+    if (!medicionActiva && digitalRead(pinPulsador) == LOW && tension >= 1.1)
     {
         medicionActiva = true; // Activa medición
-        delay(50);             // Retardo p/ evitar rebotes pulsador
+        Serial.println("✅ Medición INICIADA por pulsador.");
+        delay(50); // Retardo simple p/ evitar rebotes pulsador
     }
-    // Si la medición está activa y la tensión sigue en rango
-    if (medicionActiva && tension >= 1.1)
+
+    // --------------------------------------------------------
+    // Paso 3: LÓGICA DETENCIÓN.
+    // Si la medición está activa y la tensión es menor a 1,1 [V], se detiene
+    // --------------------------------------------------------
+    if (medicionActiva && tension < 1.1)
     {
+        Serial.println("⚠️ Tensión inferior a 1,1 [V]. ❌ Medición detenida."); // Alerta
+        medicionActiva = false;                                                // Desactiva medición
+    }
+    // --------------------------------------------------------
+    // Paso 4: LÓGICA DE MEDICIÓN PERIÓDICA
+    // Solo si la medición está activa, y han transcurrido 10 s[s]
+    // --------------------------------------------------------
+    unsigned long currentMillis = millis();
+    if (medicionActiva && (currentMillis - previousMillis >= interval))
+    {
+        previousMillis = currentMillis; // Actualiza el último tiempo del temporizador (muestreo)
         // Lectura de corriente en miliAmper:
         float corriente = ina.getCurrent_mA(); // [mA]
         // Lectura de potencia en miliWatt:
         float potencia = ina.getPower_mW(); // [mW]
 
-        // VERSIÓN 1.0: Salida formato legible puerto serie (comentar si se usa formato CSV)
+        // --------------------------------------------------------
+        // ⬇️ ELEGIR FORMATO DE SALIDA ⬇️
+        // --------------------------------------------------------
+
+        // === VERSIÓN 1.0: Salida formato legible puerto serie (comentar sección si se usa formato CSV) ===
+
         Serial.println("=== Medición INA226 ===");
         // Muestra los valores por puerto serie
         Serial.print("Tensión [V]: "); // Mostrar tensión en Volt
@@ -80,25 +119,20 @@ void loop()
         Serial.print("Potencia [mW]: "); // Mostrar potencia en miliWatt
         Serial.println(potencia);        // medicionActiva
 
-        // VERSIÓN 1.1: Salida en formato CSV p/ fácil registro y análisis (comentar si se usa formato legible)
+        // === VERSIÓN 1.1: Salida en formato CSV p/ fácil registro y análisis (descomentar si se usa formato CSV) ===
         // Obtener timestamp aproximado (solo si con módulo RTC de tiempo real como el DS3231, caso contrario usar millis)
-        // unsigned long tiempo = millis() / 1000; // Tiempo en segundos desde inicio
 
-        // Imprimir en formato CSV:
-        // Serial.print(tiempo);
-        // Serial.print(",");
-        // Serial.print(tension, 3); // 3 decimales
-        // Serial.print(",");
-        // Serial.print(corriente, 3); // 3 decimales
-        // Serial.print(",");
-        // Serial.println(potencia, 2); // 2 decimales
-    }
-    // Condición: si la tensión es menor a 1,1 [V], no mide
-    else if (medicionActiva && tension < 1.1)
-    {
-        Serial.println("⚠️ Tensión inferior a 1,1 [V]. Medición detenida."); // Alerta
-        medicionActiva = false;                                             // Desactiva medición
-    }
+        unsigned long tiempo = millis() / 1000; // Tiempo en [s] desde inicio
 
-    delay(10000); // Espera 10 segundos antes de repetir
+        // Impresión formato CSV:
+        Serial.print(tiempo);
+        Serial.print(",");
+        Serial.print(tension, 3); // 3 decimales
+        Serial.print(",");
+        Serial.print(corriente, 3); // 3 decimales
+        Serial.print(",");
+        Serial.println(potencia, 2); // 2 decimales
+
+        // --------------------------------------------------------
+    }
 }
