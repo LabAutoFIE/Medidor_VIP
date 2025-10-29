@@ -13,7 +13,7 @@
 
 ## Descripción técnica:
 
-**Versión: 1.0**  
+### === Versión: 1.0 ===  
 Este sistema permite la medición de corriente, tensión y potencia mediante el módulo CJMCU-226 basado en el chip INA226 de Texas Instruments. La comunicación se realiza por protocolo I2C con una placa Arduino Uno. El sistema está diseñado para monitoreo energético en dispositivos de laboratorio.  
 ### 📡 Visualización de datos por puerto serie:
 - Interfaz: USB entre Arduino y PC
@@ -22,12 +22,12 @@ Este sistema permite la medición de corriente, tensión y potencia mediante el 
   - PlatformIO Serial Monitor
   - Arduino IDE Serial Monitor
   - PuTTY / RealTerm / CoolTerm
-- Intervalo de actualización: cada 10 segundos
+- Intervalo de actualización: cada 10 [s]
 - Datos mostrados:
   - Tensión [V]
   - Corriente [mA]
-  - Potencia [mW]
-  **Versión: 1.1** *(implementar luego se verifique el correcto funcionamiento del modulo INA226 por puerto serie en PC)*
+  - Potencia [mW]  
+  ### === Versión: 1.1 === *(implementar luego verificar correcto funcionamiento modulo INA226 por puerto serie en PC)*
   ### 📄 Exportación de datos en formato CSV:
 - Formato: `Tiempo,Tensión [V],Corriente [mA],Potencia [mW]`
 - Separador: coma `,`
