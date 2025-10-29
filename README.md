@@ -4,16 +4,17 @@
 </div>
 
 # Medidor de corriente potencia y tensión por I2C con CJMCU-226 / INA226:
-**Institución:** FIE Facultad de Ingeniería del Ejército "Grl Div Manuel N. Savio"
-**Autor:** Prof. Ing. Gerhard E.RAITH
-**Fecha:** 29/10/20225
-**Versión:** 1.0  (Preliminar prueba módulo CJMCU-226, INA226)
-**Versión:** 1.1  (salida datos archivo CSV)
-**Idioma:** Español / Inglés
+**Institución:** FIE Facultad de Ingeniería del Ejército "Grl Div Manuel N. Savio"  
+**Autor:** Prof. Ing. Gerhard E.RAITH  
+**Fecha:** 29/10/20225  
+**Versión:** 1.0  *(Preliminar prueba módulo CJMCU-226, INA226)*  
+**Versión:** 1.1  *(salida datos archivo CSV)*  
+**Idioma:** Español / Inglés  
 
 ## Descripción técnica:
-**Versión: 1.0**
-Este sistema permite la medición de corriente, tensión y potencia mediante el módulo CJMCU-226 basado en el chip INA226 de Texas Instruments. La comunicación se realiza por protocolo I2C con una placa Arduino Uno. El sistema está diseñado para monitoreo energético en dispositivos de laboratorio.
+
+**Versión: 1.0**  
+Este sistema permite la medición de corriente, tensión y potencia mediante el módulo CJMCU-226 basado en el chip INA226 de Texas Instruments. La comunicación se realiza por protocolo I2C con una placa Arduino Uno. El sistema está diseñado para monitoreo energético en dispositivos de laboratorio.  
 ### 📡 Visualización de datos por puerto serie:
 - Interfaz: USB entre Arduino y PC
 - Velocidad de transmisión: 9600 baudios
@@ -76,7 +77,7 @@ En este caso en particular, se aplica a la descarga de una pila, registrando la 
 
 ### Especificaciones CJMCU-226:
 <p align="center">
-<img scr="img/modulo-cjmcu-226.png" alt="Modulo CJMCU-226" width="250"/>
+<img src="img/modulo-cjmcu-226.png" alt="Modulo CJMCU-226" width="250"/>
 </p>
 - Tensión de alimentación: 2,7 a 5,5 [V]
 - Consumo de corriente: 300 [µA] *(típico)*
@@ -115,8 +116,9 @@ En este caso en particular, se aplica a la descarga de una pila, registrando la 
 
 ## Conexión:
 <p align="center">
-<img scr="img/esquema_conexion_ardruino-ina.png" alt="Esquema de conexión ardruino - INA226" width="400"/>
+<img src="img/esquema_conexion_ardruino-ina.png" alt="Esquema de conexión ardruino - INA226" width="400"/>
 </p>
+- Nota: `hay que actualizar con el conexionado del pulsador de inicio`
 ### 🔌 Tabla Conexiones eléctricas:
 
 | Componente | Pin terminal |   Arduino Uno  |              Descripción técnica                    |
@@ -170,15 +172,15 @@ ina.setMaxCurrentShunt(0.8, 0.1);
 - **Canal de bus:** `INA226_4200_us`
 - **Canal de shunt:** `INA226_4200_us`
 #### 🎯 ¿Cómo afectan a la precisión?:
-<u>-- Tiempos cortos *(140–588 µs)*:</u>
-- Menor precisión
-- Mayor ruido
-- Ideal para lecturas rápidas o sistemas con bajo consumo
-<u>-- Tiempos largos *(1100–8300 µs)*:</u>
-- Mayor precisión
-- Menor ruido
-- Ideal para mediciones estables o calibración comparativa
-- Adquisiciones lentas
+- Tiempos cortos *(140–588 µs)*:
+  - Menor precisión
+  - Mayor ruido
+  - Ideal para lecturas rápidas o sistemas con bajo consumo
+-Tiempos largos *(1100–8300 µs)*:
+  - Mayor precisión
+  - Menor ruido
+  - Ideal para mediciones estables o calibración comparativa
+  - Adquisiciones lentas
 
 ### 🔘 Activación de medición por pulsador:
 - **Pin digital:** D2
