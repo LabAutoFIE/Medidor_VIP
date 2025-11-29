@@ -16,17 +16,28 @@
 ## Descripción técnica:
 
 ### === Versión: 1.5 ===  
-Este sistema permite la medición de corriente, tensión y potencia mediante el módulo CJMCU-226 basado en el chip INA226 de Texas Instruments. La comunicación del módulo **INA226**, el display **LCD 16 x 2** y el reloj en tiempo real **RTC DS1307** se realizan por protocolo I2C con una placa Arduino Uno.
+Este sistema permite la medición de corriente, tensión y potencia mediante el módulo CJMCU-226 basado en el chip INA226 de Texas Instruments. La comunicación del módulo **INA226**, el display **LCD 16 x 2** y el reloj en tiempo real **RTC DS1307** se realizan por protocolo **I2C** con una placa Arduino Uno.
 El sistema se diseñó para adaptar monitoreos energéticos en dispositivos eléctricos de laboratorio.
 
 
 En este caso en particular, se aplica a la descarga de una pila, registrando la corriente y la tensión de descarga de acuerdo a la RL *(resistencia de carga)*. Así se obtienen las curvas de tensión [V] potencia [W] e intensidad [A] respecto del tiempo [t]. Con ello la idea es analizar la energía que es capaz de suministrar la pila, para una determinada profundidad de descarga **DoD**.
 <p align="center">
-<img src="img/circuito_descarga.png" alt="Circuito de descarga de la Pila"/>
+<img src="img/circuito_descarga.png" alt="Circuito de descarga de la Pila" style="width:75%;"/>
+</p>
+<p align="center">
+<img src="img/circuito_descarga_INA226.jpg" alt="Circuito de descarga de la Pila con medición INA226" style="width:75%;"/>
 </p>
 
 #### 🧩 Objetivo:
 Activar un módulo de relé después de 10 minutos de medición activa, mantenerlo encendido durante 1.5 minutos, y luego apagarlo. Todo controlado con `millis()`. En todo momento medir la Tensión [V]. Ello permitirá determianr la resistencia interna aparente de la fuente *(en este caso la pila probada)*
+#### 🧩 Condiciones de Ensayo Norma IEC 60086:
+- **Temperatura ambiente:** típicamente 20 ± 2 [°C].
+- **Humedad relativa:** alrededor de 65 ± 20 [%].
+- **Descarga continua o intermitente:** depende del tipo de pila y aplicación simulada. *(LR03 / FR03 / R03)*
+- **Carga aplicada:** se especifica mediante una resistencia estándar *(por ejemplo, 3,9 Ω para AA, 15 Ω para AAA, etc.)* o una corriente fija.
+- **Tensión de corte:** normalmente 0,9 V por celda para alcalinas, aunque puede variar según la química.
+- **Número de muestras:** se ensayan varias pilas para obtener un promedio estadísticamente válido.
+
 
 ### 📡 Visualización de datos por puerto serie:
 - Interfaz: USB entre Arduino y PC
@@ -87,16 +98,34 @@ Este sistema de medición está basado en una arquitectura modular con los sigui
 - EN: SPI interface. CS pin = D10. Uses optimized SdFat library for traceability.
 
 ### 📺 LCD 16x2 con I2C (PCF8574)
-- ES: Dirección típica 0x27. Visualiza tensión, corriente, potencia y estado del relé.
-- EN: Typical address 0x27. Displays voltage, current, power, and relay status.
+<p align="center">
+<img src="img/Display2x16_F.webp" alt="Relé combinación" style="width:35%;">
+<img src="img/Display2x16_D.webp" alt="Relé combinación" style="width:455%;">
+</p>
+- ES: Dirección típica **0x27**. Visualiza tensión, corriente, potencia y estado del relé.
+- EN: Typical address **0x27**. Displays voltage, current, power, and relay status.
 
 ### 🔁 Relé 1 canal
+<p align="center">
+<img src="img/rele.webp" alt="Relé combinación" style="width:50%;">
+</p>
 - ES: Controlado por pin digital. Activa carga externa durante medición.
 - EN: Controlled by digital pin. Activates external load during measurement.
 
-### ⏱️ RTC DS3231
-- ES: Reloj de tiempo real con batería, dirección típica 0x68. Provee fecha/hora para archivos SD y tiempo de medición.
-- EN: Real-time clock with battery, typical address 0x68. Provides timestamping for SD files and measurement time.
+### ⚡ Arduino Shield Datalogger con ⏱️ RTC DS1307
+<p align="center">
+<img src="img/ShieldDataLogger.webp" alt="Shield Data Logger con RTC" style="width:40%;">
+</p>
+
+#### ⚙️ Características principales
+- Interfaz para **memoria SD** compatible con FAT32/FAT16 *(niveles de 3.3V)*.
+- **RTC DS1307** con batería de respaldo CR1220 *(mantiene la hora por varios años)*.
+  -- ES: Reloj de tiempo real con batería, dirección típica **0x68**. Provee fecha/hora para archivos SD y tiempo de medición.
+  -- EN: Real-time clock with battery, typical address 0x68. Provides timestamping for SD files and measurement time.
+- Área de prototipos para conexiones adicionales.
+- LED´s indicadores configurables.
+- Referencia de tensión de 3.3V.
+- Botón de reset incluido.
 
 ### 🔘 Pulsador de inicio
 - ES: Lógica activa baja. Inicia ciclo de medición.
@@ -111,7 +140,7 @@ Este sistema de medición está basado en una arquitectura modular con los sigui
 |
 └───> GND 
 ```
-### 🔌 Fuente de alimentación
+### 🔌 Fuente de alimentación / Power Supply
 - ES: 5V regulados. USB o fuente externa.
 - EN: Regulated 5V. USB or external source.
 
@@ -127,23 +156,30 @@ Este sistema de medición está basado en una arquitectura modular con los sigui
 ---
 ---
 
-## Estructura Proyecto:
-**medidor_vip/**
+## Estructura Proyecto / Project Structure:
+**MEDIDOR_VIP/**
 ```
 ├── **documents/**
+│     └── 25.csv (ejemplo adquisición)
 │     └── AdafruitDataLoggerShield-EN.pdf
+│     └── CircuitoElectrico.vsdx
 │     └── INA226_TexasInstrumets-DataSheet-EN.pdf
 │     └── INA226_TexasInstrumets-DataSheet-ES.pdf
 │     └── ITodoSobreElPuertoI2C.pdf
 ├── **img/**
+│    └── circuito_descarga_INA226.jpg
 │    └── circuito_descarga.png
 │    └── direcciones-pin_direcciones-esclavas.png
+│    └── Displa2x16_D.webp
+│    └── Displa2x16_F.webp
 │    └── esquema_conexion_ardruino-ina.png
 │    └── esquema_interno_cjmcu-226.png
 │    └── implementacion_cjmcu-226.png
 │    └── INA226-board-1.jpg
 │    └── INA226-board.jpg
 │    └── modulo-cjmcu-226.png
+│    └── Rele.webp
+│    └── ShieldDataLogger.webp
 ├── **include/**
 ├── **lib/**
 │     └── **DS1302/**  (no utilizada en el proyecto)
@@ -327,12 +363,12 @@ ina.setMaxCurrentShunt(0.8, 0.1);
 #### ⚠️ Control de rango de medición:
 - Activación: 
   - Pulsador físico en D2 LOW *(cuando se presiona)*
-  - Si `getBusVoltage()` ≥ 1.1 [V] → se realiza lecturas
+  - Si `getBusVoltage()` ≥ 1.0 [V] → se realiza lecturas
 - Medición:
-  - Solo si `medicionActiva == true` y tensión en rango *(≥ 1.1 [V])*
+  - Solo si `medicionActiva == true` y tensión en rango *(≥ 1.0 [V])*
 -Corte automático:
-  - Umbral de corte inferior de tensión: 1,1 [V]
-  - si `getBusVoltage()` < 1,1 [V] → se detiene la medición
+  - Umbral de corte inferior de tensión: 1,0 [V]
+  - si `getBusVoltage()` < 1.0 [V] → se detiene la medición
 - Justificación: detener las mediciones cuando el elemento a probar *(pila)* está por debajo de un valor de tensión *(que perdió su capacidad de entregar energía)*
 - Intervalo de muestreo: 10 [s]
 

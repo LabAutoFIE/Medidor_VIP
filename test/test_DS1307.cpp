@@ -1,6 +1,6 @@
 #include <Arduino.h>
 #include <Wire.h>
-#include <RtcDS1307.h> // o RtcDS3231.h si usás DS3231
+#include <RtcDS1307.h> // ó RtcDS3231.h -> DS3231
 // --- precisión de ±2 minutos/mes - (~90 ppm)  ~24 minutos/ año---
 // - Resolución de lectura: 1 segundo
 RtcDS1307<TwoWire> rtc(Wire);
