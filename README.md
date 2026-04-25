@@ -3,15 +3,23 @@
   <img width="150" height="150" alt="AutoSolo3_circle" src="https://github.com/user-attachments/assets/38627ca5-195e-4675-b25b-05d910e9b540" />
 </div>
 
-# Medidor de corriente potencia y tensión por I2C con CJMCU-226 / INA226:
+# Medidor de Corriente, Tensión y Potencia vía I2C basado en INA226 /CJMCU-226:
 **Institución:** FIE Facultad de Ingeniería del Ejército "Grl Div Manuel N. Savio"  
 **Autor:** Prof. Ing. Gerhard E.RAITH  
 **Fecha:** 25/04/2026
-**Versión:** 1.6  *(salida LCD, datos archivo CSV en memoria SD y relé medición)* 
+**Versión:** 1.6  *(LCD, registro CSV en  SD + control de descarga por relé)* 
 **Idioma:** Español / Inglés  
 
 ---
 ---
+## 1. Resumen:
+<p align="justify">
+Se presenta un sistema de medición de variables eléctricas *(tensión, corriente y potencia)* basado en el sensor **INA226**, con adquisición mediante microcontrolador **Arduino Uno**. El sistema integra almacenamiento en tarjeta **SD**, visualización en **LCD 2x16** y registro temporal mediante **RTC DS1307**.
+</p>
+
+<p align="justify">
+La aplicación principal consiste en la caracterización de la descarga de pilas comerciales *(AAA)* u otras, permitiendo obtener curvas *V(t)*, *I(t)* y *P(t)*, la resistencia interna aparente de la pila **Ri** y determinar la capacidad energética de la pila bajo distintas condiciones de descarga. El circuito permite variar la resistencia de carga **Rc**, de forma de producir las curvas de descarga con diferentes profundidades de descarga **DoD**
+</p>
 
 ## Descripción técnica:
 
@@ -33,8 +41,23 @@ Con el registro de datos en el archivo de la memoria **SD**, luego se pueden rea
 <img src="img/circuito_descarga_INA226.jpg" alt="Circuito de descarga de la Pila con medición INA226" style="width:65%;"/>
 </p>
 
-#### 🧩 Objetivo:
+## Objetivos:
+- Medición de tensión de bus *(hasta 36 [V])*
+- Medición corriente mediante resistencia shunt
+- Calcular potencia instantánea
+- Exportar datos por puerto serie para análisis
+- Determinar capacidad de la pila comercial.
+
+## Componentes:
+- Arduino Uno
+- Módulo CJMCU-226 *(INA226)*
+- Resistencia shunt de 0.1 [Ω]
+- Pila comercial de 1,5 [V]
+- Carga (Resistencia para producir la profundidad de descarga objetivo)
+
+#### 🧩 Método:
 Activar un módulo de relé después de 10 minutos de medición activa, mantenerlo encendido durante 1.5 minutos, y luego apagarlo. Todo controlado con `millis()`. En todo momento medir la Tensión [V]. Ello permitirá determianr la resistencia interna aparente de la fuente *(en este caso la pila probada)*
+
 #### 🧩 Condiciones de Ensayo Norma IEC 60086:
 - **Temperatura ambiente:** típicamente 20 ± 2 [°C].
 - **Humedad relativa:** alrededor de 65 ± 20 [%].
@@ -99,23 +122,25 @@ Este sistema de medición está basado en una arquitectura modular con los sigui
 - EN: I2C module for voltage, current, and power measurement. Typical address **0x40**.
 
 ### 💾 Módulo SD
-- ES: Interfaz SPI. Pin CS = D10. Usa biblioteca SdFat optimizada para trazabilidad.
-- EN: SPI interface. CS pin = D10. Uses optimized SdFat library for traceability.
+- *ES:* Interfaz SPI. Pin CS = D10. Usa biblioteca SdFat optimizada para trazabilidad.
+- *EN:* SPI interface. CS pin = D10. Uses optimized SdFat library for traceability.
 
 ### 📺 LCD 16x2 con I2C (PCF8574)
 <p align="center">
 <img src="img/Display2x16_F.webp" alt="Display de 2 filas x 16 caracteres, vista de frente" style="width:35%;">
 <img src="img/Display2x16_D.webp" alt="Display de 2 filas x 16 caracteres, vista anverso" style="width:45%;">
 </p>
-- ES: Dirección típica **0x27**. Visualiza tensión, corriente, potencia y estado del relé.
-- EN: Typical address **0x27**. Displays voltage, current, power, and relay status.
+
+- *ES:* Dirección típica **0x27**. Visualiza tensión, corriente, potencia y estado del relé.
+- *EN:* Typical address **0x27**. Displays voltage, current, power, and relay status.
 
 ### 🔁 Relé 1 canal
 <p align="center">
 <img src="img/Rele.webp" alt="Relé de combinación" style="width:50%;">
 </p>
-- ES: Controlado por pin digital. Activa carga externa durante medición.
-- EN: Controlled by digital pin. Activates external load during measurement.
+
+- *ES:* Controlado por pin digital. Activa carga externa durante medición.
+- *EN:* Controlled by digital pin. Activates external load during measurement.
 
 ### ⚡ Arduino Shield Datalogger con ⏱️ RTC DS1307
 <p align="center">
@@ -125,16 +150,16 @@ Este sistema de medición está basado en una arquitectura modular con los sigui
 #### ⚙️ Características principales
 - Interfaz para **memoria SD** compatible con FAT32/FAT16 *(niveles de 3.3V)*.
 - **RTC DS1307** con batería de respaldo CR1220 *(mantiene la hora por varios años)*.
-  -- ES: Reloj de tiempo real con batería, dirección típica **0x68**. Provee fecha/hora para archivos SD y tiempo de medición.
-  -- EN: Real-time clock with battery, typical address 0x68. Provides timestamping for SD files and measurement time.
+  -- *ES:* Reloj de tiempo real con batería, dirección típica **0x68**. Provee fecha/hora para archivos SD y tiempo de medición.
+  -- *EN:* Real-time clock with battery, typical address 0x68. Provides timestamping for SD files and measurement time.
 - Área de prototipos para conexiones adicionales.
 - LED´s indicadores configurables.
 - Referencia de tensión de 3.3V.
 - Botón de reset incluido.
 
 ### 🔘 Pulsador de inicio
-- ES: Lógica activa baja. Inicia ciclo de medición.
-- EN: Active-low logic. Starts measurement cycle.
+- *ES:* Lógica activa baja. Inicia ciclo de medición.
+- *EN:* Active-low logic. Starts measurement cycle.
 **[ Pulsador ]**
 ```
 ┌────┐
@@ -146,8 +171,8 @@ Este sistema de medición está basado en una arquitectura modular con los sigui
 └───> GND 
 ```
 ### 🔌 Fuente de alimentación / Power Supply
-- ES: 5V regulados. USB o fuente externa.
-- EN: Regulated 5V. USB or external source.
+- *ES:* 5V regulados. USB o fuente externa.
+- *EN:* Regulated 5V. USB or external source.
 
 ---
 
@@ -268,19 +293,6 @@ Este sistema de medición está basado en una arquitectura modular con los sigui
 7. **IN-:** Este pin se conecta a la carga *(entrada analógica inversora)*. Aquí es donde se coloca la resistencia de derivación para la detección de corriente.
 8. **IN+:** Este pin se conecta a la fuente de alimentación*(entrada analógica no inversora) / Resistencia derivadora.
 -  **A0/A1:** línea de selección direcciones *I2C*
-
-## Objetivos:
-- Medición de tensión de bus *(hasta 36 [V])*
-- Medición corriente mediante resistencia shunt
-- Calcular potencia instantánea
-- Exportar datos por puerto serie para análisis
-
-## Componentes:
-- Arduino Uno
-- Módulo CJMCU-226 *(INA226)*
-- Resistencia shunt de 0.1 [Ω]
-- Pila comercial de 1,5 [V]
-- Carga (Resistencia para producir la profundidad de descarga objetivo)
 
 ## 🔌 CONEXIÓN:
 <p align="center">

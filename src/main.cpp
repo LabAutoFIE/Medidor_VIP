@@ -9,7 +9,7 @@
 // --- CONFIGURACIÓN PINES y SENSORES ---
 // Creo instancia sensor INA226 c/ dirección p/ defecto (0x40)
 INA226_WE ina(0x40);       // Dirección I2C INA226 base: 0x40 hasta 0x4F (16 direcciones posibles)
-const int pinPulsador = 2; // PIN D2 p/ pulasor
+const int pinPulsador = 2; // PIN D2 p/ pulsador
 const int pinRele = 3;     // PIN D3 p/ controlar relé
 
 // --- PANTALLA LCD I2C ---
