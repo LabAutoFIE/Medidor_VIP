@@ -10,24 +10,32 @@
 **Versión:** 1.6  *(LCD, registro CSV en  SD + control de descarga por relé)* 
 **Idioma:** Español / Inglés  
 
+<p align="center">
+<img src="img/Conjunto.png" alt="Conexión de hardware de Ardruino - Data Logger - RTC - Relay - Rc y otros" style="width:45%;"/>
+</p>
+
 ---
 ---
 ## 1. Resumen:
 <p align="justify">
-Se presenta un sistema de medición de variables eléctricas *(tensión, corriente y potencia)* basado en el sensor <strong>INA226</strong>, con adquisición mediante microcontrolador <strong>Arduino Uno R3</strong>. El sistema integra almacenamiento en tarjeta <strong>SD</strong>, visualización en <strong>LCD 2x16</strong> <em>(PCF8574)</em> y registro temporal mediante <strong>RTC DS1307</strong>.
+Se presenta un sistema de medición de variables eléctricas *(tensión, corriente y potencia, en función del tiempo)* basado en el sensor <strong>INA226</strong>, con adquisición mediante microcontrolador <strong>Arduino Uno R3</strong>. El sistema integra almacenamiento en tarjeta <strong>SD</strong>, visualización en <strong>LCD 2x16</strong> <em>(PCF8574)</em> y registro temporal mediante <strong>RTC DS1307</strong>.
+El sistema se diseñó para adaptar monitoreos energéticos en dispositivos eléctricos de laboratorio.
 </p>
 
 <p align="justify">
-La aplicación principal consiste en la caracterización de la descarga de pilas comerciales <em>(AAA)</em> u otras, permitiendo obtener curvas <em>V(t)</em>, <em>I(t)</em> y <em>P(t)</em>, la resistencia interna aparente de la pila <strong>Ri</strong> y determinar la capacidad energética de la pila bajo distintas condiciones de descarga. El circuito permite variar la resistencia de carga <strong>Rc</strong>, de forma de producir las curvas de descarga con diferentes profundidades de descarga <strong>DoD</strong>
+La aplicación principal consiste en la caracterización de la descarga de pilas comerciales <em>(AAA)</em> u otras, permitiendo obtener curvas <em>V(t)</em>, <em>I(t)</em> y <em>P(t)</em>, la resistencia interna aparente de la pila <strong>Ri</strong> y determinar la capacidad energética de la pila <strong>[mAh]</strong> bajo distintas condiciones de descarga. El circuito permite variar la resistencia de carga <strong>Rc</strong>, de forma de producir las curvas de descarga con diferentes profundidades de descarga <strong>DoD</strong>
 </p>
 
-## Descripción técnica:
+## 2. Descripción técnica del Sistema:
+### === Versión: 1.6 ===
+<p align="justify">
+El sistema utiliza el módulo <strong>CJMCU-226</strong> <em>(INA226)</em> para medir magnitudes eléctricas a través de comunicación <strong>I2C</strong>. Los datos adquiridos se registran en memoria <strong>SD</strong> junto con marcas de tiempo proporcionadas por un <strong>RTC DS1307</strong>.
+</p>
+<p align="justify">
+El sistema permite la medición de corriente, tensión y potencia mediante el módulo <strong>CJMCU-226</strong> basado en el chip <strong>INA226</strong> de Texas Instruments. La comunicación del módulo <strong>INA226</strong>, el display <strong>LCD 16 x 2</strong> y el reloj en tiempo real <strong>RTC DS1307</strong> incluido en el <strong>Ardruino Shield Datalogger</strong>, se realizan aplicando el protocolo <strong>I2C</strong> con la placa <strong>Arduino Uno R3</strong>. El Ardruino Shield Datalogger permite registrar todos los parámetros <em>(Tensión, corriente, potencia y tiempo)</em> en la memoria <strong>SD</strong>.
+</p>
 
-### === Versión: 1.6 ===  
-Este sistema permite la medición de corriente, tensión y potencia mediante el módulo CJMCU-226 basado en el chip INA226 de Texas Instruments. La comunicación del módulo **INA226**, el display **LCD 16 x 2** y el reloj en tiempo real **RTC DS1307** incluido en el **Ardruino Shield Datalogger**, permite registrar todos los parámetros *(Tensión, corriente, potencia y tiempo)* en la memoria **SD** se realizan aplicando el protocolo **I2C**, para el Display, el módulo **INA226** con una placa **Arduino Uno R3**.
-El sistema se diseñó para adaptar monitoreos energéticos en dispositivos eléctricos de laboratorio.
-
-En este caso en particular, se aplica a la descarga de una pila **AAA / LR03** , registrando la corriente y la tensión de descarga de acuerdo a la **RL** *(resistencia de carga)*. Así se obtienen las curvas de tensión [V] potencia [W] e intensidad [A] respecto del tiempo [t]. Con ello la idea es determinar y analizar la energía que es capaz de suministrar la pila, para una determinada profundidad de descarga **DoD** determinada por la resistencia de carga **RL**.
+En este caso en particular, se aplicó a la descarga de una pila **AAA / LR03** , registrando la corriente y la tensión de descarga de acuerdo a la **RL** *(resistencia de carga)*. Así se obtienen las curvas de tensión [V] potencia [W] e intensidad [A] respecto del tiempo [t]. Con ello la idea es determinar y analizar la energía que es capaz de suministrar la pila, para una determinada profundidad de descarga **DoD** determinada por la resistencia de carga **RL**.
 
 Con el registro de datos en el archivo de la memoria **SD**, luego se pueden realizar los gráficos y en particular aplicar un método de determinación para calcular la capacidad de la pila [mAh]
 
