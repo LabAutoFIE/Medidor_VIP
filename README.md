@@ -34,10 +34,12 @@ El sistema utiliza el módulo <strong>CJMCU-226</strong> <em>(INA226)</em> para 
 <p align="justify">
 El sistema permite la medición de corriente, tensión y potencia mediante el módulo <strong>CJMCU-226</strong> basado en el chip <strong>INA226</strong> de Texas Instruments. La comunicación del módulo <strong>INA226</strong>, el display <strong>LCD 16 x 2</strong> y el reloj en tiempo real <strong>RTC DS1307</strong> incluido en el <strong>Ardruino Shield Datalogger</strong>, se realizan aplicando el protocolo <strong>I2C</strong> con la placa <strong>Arduino Uno R3</strong>. El Ardruino Shield Datalogger permite registrar todos los parámetros <em>(Tensión, corriente, potencia y tiempo)</em> en la memoria <strong>SD</strong>.
 </p>
-
-En este caso en particular, se aplicó a la descarga de una pila **AAA / LR03** , registrando la corriente y la tensión de descarga de acuerdo a la **RL** *(resistencia de carga)*. Así se obtienen las curvas de tensión [V] potencia [W] e intensidad [A] respecto del tiempo [t]. Con ello la idea es determinar y analizar la energía que es capaz de suministrar la pila, para una determinada profundidad de descarga **DoD** determinada por la resistencia de carga **RL**.
-
-Con el registro de datos en el archivo de la memoria **SD**, luego se pueden realizar los gráficos y en particular aplicar un método de determinación para calcular la capacidad de la pila [mAh]
+<p align="justify">
+En este caso en particular, se aplicó a la descarga de una pila <strong>AAA / LR03</strong>, registrando la corriente y la tensión de descarga de acuerdo a la <strong>RL</strong> <em>(resistencia de carga)*. Así se obtienen las curvas de tensión <em>[V]</em> potencia <em>[W]</em> e intensidad <em>[A]</em> respecto del tiempo <em>[t]</em>. Con ello se determina y analiza la energía que es capaz de suministrar la pila, para una determinada profundidad de descarga <strong>DoD</strong> determinada por la resistencia de carga <strong>RL</strong>.
+</p>
+<p align="justify">
+Con el registro de datos en el archivo de la memoria <strong>SD</strong>, luego se pueden realizar los gráficos y en particular aplicar un método de determinación para calcular la capacidad de la pila <strong>[mAh]</strong>.
+</p>
 
 - **Norma de consulta:**
     - IEC60086-2_PilasPrimarias-ed13
