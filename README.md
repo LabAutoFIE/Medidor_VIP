@@ -14,11 +14,11 @@
 ---
 ## 1. Resumen:
 <p align="justify">
-Se presenta un sistema de medición de variables eléctricas *(tensión, corriente y potencia)* basado en el sensor **INA226**, con adquisición mediante microcontrolador **Arduino Uno**. El sistema integra almacenamiento en tarjeta **SD**, visualización en **LCD 2x16** y registro temporal mediante **RTC DS1307**.
+Se presenta un sistema de medición de variables eléctricas *(tensión, corriente y potencia)* basado en el sensor <strong>INA226</strong>, con adquisición mediante microcontrolador <strong>Arduino Uno R3</strong>. El sistema integra almacenamiento en tarjeta <strong>SD</strong>, visualización en <strong>LCD 2x16</strong> <em>(PCF8574)</em> y registro temporal mediante <strong>RTC DS1307</strong>.
 </p>
 
 <p align="justify">
-La aplicación principal consiste en la caracterización de la descarga de pilas comerciales *(AAA)* u otras, permitiendo obtener curvas *V(t)*, *I(t)* y *P(t)*, la resistencia interna aparente de la pila **Ri** y determinar la capacidad energética de la pila bajo distintas condiciones de descarga. El circuito permite variar la resistencia de carga **Rc**, de forma de producir las curvas de descarga con diferentes profundidades de descarga **DoD**
+La aplicación principal consiste en la caracterización de la descarga de pilas comerciales <em>(AAA)</em> u otras, permitiendo obtener curvas <em>V(t)</em>, <em>I(t)</em> y <em>P(t)</em>, la resistencia interna aparente de la pila <strong>Ri</strong> y determinar la capacidad energética de la pila bajo distintas condiciones de descarga. El circuito permite variar la resistencia de carga <strong>Rc</strong>, de forma de producir las curvas de descarga con diferentes profundidades de descarga <strong>DoD</strong>
 </p>
 
 ## Descripción técnica:
