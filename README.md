@@ -6,8 +6,8 @@
 # Medidor de corriente potencia y tensión por I2C con CJMCU-226 / INA226:
 **Institución:** FIE Facultad de Ingeniería del Ejército "Grl Div Manuel N. Savio"  
 **Autor:** Prof. Ing. Gerhard E.RAITH  
-**Fecha:** 12/11/20225
-**Versión:** 1.5  *(salida LCD, datos archivo CSV y relé medición)* 
+**Fecha:** 25/04/2026
+**Versión:** 1.6  *(salida LCD, datos archivo CSV en memoria SD y relé medición)* 
 **Idioma:** Español / Inglés  
 
 ---
@@ -15,17 +15,22 @@
 
 ## Descripción técnica:
 
-### === Versión: 1.5 ===  
-Este sistema permite la medición de corriente, tensión y potencia mediante el módulo CJMCU-226 basado en el chip INA226 de Texas Instruments. La comunicación del módulo **INA226**, el display **LCD 16 x 2** y el reloj en tiempo real **RTC DS1307** se realizan por protocolo **I2C** con una placa Arduino Uno.
+### === Versión: 1.6 ===  
+Este sistema permite la medición de corriente, tensión y potencia mediante el módulo CJMCU-226 basado en el chip INA226 de Texas Instruments. La comunicación del módulo **INA226**, el display **LCD 16 x 2** y el reloj en tiempo real **RTC DS1307** incluido en el **Ardruino Shield Datalogger**, permite registrar todos los parámetros *(Tensión, corriente, potencia y tiempo)* en la memoria **SD** se realizan aplicando el protocolo **I2C**, para el Display, el módulo **INA226** con una placa **Arduino Uno R3**.
 El sistema se diseñó para adaptar monitoreos energéticos en dispositivos eléctricos de laboratorio.
 
+En este caso en particular, se aplica a la descarga de una pila **AAA / LR03** , registrando la corriente y la tensión de descarga de acuerdo a la **RL** *(resistencia de carga)*. Así se obtienen las curvas de tensión [V] potencia [W] e intensidad [A] respecto del tiempo [t]. Con ello la idea es determinar y analizar la energía que es capaz de suministrar la pila, para una determinada profundidad de descarga **DoD** determinada por la resistencia de carga **RL**.
 
-En este caso en particular, se aplica a la descarga de una pila, registrando la corriente y la tensión de descarga de acuerdo a la RL *(resistencia de carga)*. Así se obtienen las curvas de tensión [V] potencia [W] e intensidad [A] respecto del tiempo [t]. Con ello la idea es analizar la energía que es capaz de suministrar la pila, para una determinada profundidad de descarga **DoD**.
+Con el registro de datos en el archivo de la memoria **SD**, luego se pueden realizar los gráficos y en particular aplicar un método de determinación para calcular la capacidad de la pila [mAh]
+
+- **Norma de consulta:**
+    - IEC60086-2_PilasPrimarias-ed13
+
 <p align="center">
-<img src="img/circuito_descarga.png" alt="Circuito de descarga de la Pila" style="width:75%;"/>
+<img src="img/circuito_descarga.png" alt="Circuito de descarga de la Pila" style="width:45%;"/>
 </p>
 <p align="center">
-<img src="img/circuito_descarga_INA226.jpg" alt="Circuito de descarga de la Pila con medición INA226" style="width:75%;"/>
+<img src="img/circuito_descarga_INA226.jpg" alt="Circuito de descarga de la Pila con medición INA226" style="width:65%;"/>
 </p>
 
 #### 🧩 Objetivo:
@@ -49,10 +54,10 @@ Activar un módulo de relé después de 10 minutos de medición activa, mantener
 - Intervalo de actualización: cada 10 [s] *(⚙️ Configurable)*
 - Datos mostrados:
   - tiempo [s]
-  - Tensión [V]
+  - Tensión [V]s
   - Corriente [mA]
   - Potencia [mW]  
-  - Relé [0-1]: 0 or 1 *(estado del relé 0 = Apagado, 1 = Encendido)*
+  - Relé [0-1]: 0 or 1 *(estado del relé **0** = Apagado, **1** = Encendido)*
 ### 📄 Exportación de datos en formato CSV:
 - Formato: `Tiempo [s],Tension [V],Corriente [mA],Potencia [mW],Rele 1=activo 0=apagado` *(Encabezado)*
 - Separador: coma `,`
@@ -90,8 +95,8 @@ Este sistema de medición está basado en una arquitectura modular con los sigui
 - EN: 8-bit, 16 MHz, 2 KB SRAM, 32 KB Flash. Suitable for basic measurement systems.
 
 ### 📐 Sensor INA226
-- ES: Módulo I2C para medición de tensión, corriente y potencia. Dirección típica 0x40.
-- EN: I2C module for voltage, current, and power measurement. Typical address 0x40.
+- ES: Módulo I2C para medición de tensión, corriente y potencia. Dirección típica **0x40**.
+- EN: I2C module for voltage, current, and power measurement. Typical address **0x40**.
 
 ### 💾 Módulo SD
 - ES: Interfaz SPI. Pin CS = D10. Usa biblioteca SdFat optimizada para trazabilidad.
@@ -99,22 +104,22 @@ Este sistema de medición está basado en una arquitectura modular con los sigui
 
 ### 📺 LCD 16x2 con I2C (PCF8574)
 <p align="center">
-<img src="img/Display2x16_F.webp" alt="Relé combinación" style="width:35%;">
-<img src="img/Display2x16_D.webp" alt="Relé combinación" style="width:455%;">
+<img src="img/Display2x16_F.webp" alt="Display de 2 filas x 16 caracteres, vista de frente" style="width:35%;">
+<img src="img/Display2x16_D.webp" alt="Display de 2 filas x 16 caracteres, vista anverso" style="width:45%;">
 </p>
 - ES: Dirección típica **0x27**. Visualiza tensión, corriente, potencia y estado del relé.
 - EN: Typical address **0x27**. Displays voltage, current, power, and relay status.
 
 ### 🔁 Relé 1 canal
 <p align="center">
-<img src="img/rele.webp" alt="Relé combinación" style="width:50%;">
+<img src="img/Rele.webp" alt="Relé de combinación" style="width:50%;">
 </p>
 - ES: Controlado por pin digital. Activa carga externa durante medición.
 - EN: Controlled by digital pin. Activates external load during measurement.
 
 ### ⚡ Arduino Shield Datalogger con ⏱️ RTC DS1307
 <p align="center">
-<img src="img/ShieldDataLogger.webp" alt="Shield Data Logger con RTC" style="width:40%;">
+<img src="img/ShieldDataLogger.webp" alt="Shield Data Logger con RTC (Real Time Clock)" style="width:40%;">
 </p>
 
 #### ⚙️ Características principales

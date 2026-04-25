@@ -23,7 +23,7 @@ SdFile archivo; // p/ manejar archivos individuales
 // --- VARIABLES ESTADO y TEMPORIZACIÓN ---
 bool medicionActiva = false; // Controla medición está activa o no con millis
 bool releActivado = false;   // Estado relé
-char nombreArchivo[7];       // Nombre logger "25.csv" → ahorro RAM
+char nombreArchivo[12];      // Nombre logger "MMDDHH.csv" → ahorro RAM
 // Variables p/ el temporizador de muestreo (10 [s])
 unsigned long previousMillis = 0;       // Almacena último tiempo muestreo
 unsigned long inicioMedicionMillis = 0; // Marca inicio medición
@@ -36,8 +36,8 @@ EstadoRele estadoRele = RELE_APAGADO;
 unsigned long tiempoCambioEstado = 0; // Marca último cambio estado relé
 // --- CONSTANTES DE TIEMPO ---
 const long interval = 10000;               // 10000 [ms] = 10 [s] intervalo muestreo ⚙️
-const long releEnciendeMillis = 180000;    // 150000 [ms] = 3 [min] Tiempo medición p/ activar relé ⚙️
-const long releTiempoEsperaMillis = 60000; // 60000 [ms] = 1 [min] tiempo espera p/ desactivar relé ⚙️
+const long releEnciendeMillis = 300000;    // 300000 [ms] = 5 [min] Tiempo medición p/ activar relé ⚙️
+const long releTiempoEsperaMillis = 90000; // 90000 [ms] = 1,5 [min] tiempo espera p/ desactivar relé ⚙️
 // --- Calibración Corriente INA226 ---
 const float offsetCorriente = -0.05; // Valor típico observado s/carga ⚙️
 float corriente = 0.0;               // ✅ Inicialización segura
@@ -61,7 +61,7 @@ void setup()
     Rtc.Begin();
     RtcDateTime now = Rtc.GetDateTime(); // Lectura Tiempo actual
 
-    sprintf(nombreArchivo, "%02u.csv", now.Year() % 100); // Nombre archivo
+    sprintf(nombreArchivo, "%02u%02u%02u.csv", now.Month(), now.Day(), now.Hour()); // Nombre archivo
     // Inicializa SD
     if (!SD.begin(10, SD_SCK_MHZ(4))) // Pin CS p/ módulo SD
     {
@@ -93,7 +93,7 @@ void setup()
             }
             if (archivo.getWriteError())
             {
-                Serial.println(F("❌ error de escritura en encabezado."));
+                Serial.println(F("❌ error de escritura del encabezado."));
                 archivo.clearWriteError(); // limpia estado
             }
 
@@ -230,10 +230,11 @@ void mostrarLCD(float tension, float corriente, float potencia, unsigned long ti
 void loop()
 {
     // --------------------------------------------------------
-    // Paso 1: LECTURA DE TENSIÓN
-    // Es la base p/ lógica de inicio y detención de la medición
+    // Paso 1: LECTURA TENSIÓN
+    // Base p/ lógica inicio y detención medición
     // --------------------------------------------------------
     float tension = ina.getBusVoltage_V(); // [V]
+
     // --------------------------------------------------------
     // Paso 2: LÓGICA INICIO.
     // Solo activa <-> medición NO está activa y tensión >= 1,0 [V]
@@ -241,7 +242,7 @@ void loop()
     static unsigned long tiempoEstable = 0;
     if (!medicionActiva && digitalRead(pinPulsador) == LOW && tension >= 1.0) // ⚙️
     {
-        if (millis() - tiempoEstable > 500) // tensión estable x 500 ms
+        if (millis() - tiempoEstable > 200) // tensión estable x 200 ms
         {
             medicionActiva = true;                 // Activa medición
             inicioMedicionMillis = millis();       // Marca inicio medición ⚠️ millis() se desborda (cada ~50 días)
@@ -282,57 +283,7 @@ void loop()
     }
 
     // --------------------------------------------------------
-    // Paso 3: LÓGICA DETENCIÓN.
-    // Si la medición está activa, el relé encendido y la tensión es < 1,0 [V], se detiene
-    // --------------------------------------------------------
-    if (medicionActiva && estadoRele == RELE_ENCENDIDO)
-    {
-        // Verifica última y penúltima medición
-        if (ultimaTension < 1.0 && penultimaTension < 1.0) // ⚙️ Tensión detención
-        {
-
-            Serial.println(F("⚠️ Tensión < 1,0 [V] c/ Relé activo. Medición detenida.")); // Alerta
-            medicionActiva = false;                                                      // Desactiva medición
-            previousMillis = 0;                                                          // Reinicia contador
-            inicioMedicionMillis = 0;                                                    // Reinicia marcador inicio
-            lcdInicializado = false;                                                     // ← preparo LCD p/ borrado único próx. medición
-
-            // 🔁 Apaga relé y reinicio estado
-            digitalWrite(pinRele, LOW);
-            estadoRele = RELE_APAGADO;
-            tiempoCambioEstado = 0;
-
-            // 🕒 Obtener fecha/hora actual RTC
-            RtcDateTime now = Rtc.GetDateTime();
-
-            // 📝 Abrir archivo y registrar fin
-            if (archivo.open(nombreArchivo, O_WRITE | O_APPEND))
-            {
-                archivo.println(F("Fin de medicion"));
-
-                // 🕒 Actualizar fecha de modificación
-                archivo.timestamp(T_WRITE, now.Year(), now.Month(), now.Day(), now.Hour(), now.Minute(), now.Second());
-
-                archivo.flush();
-                archivo.close();
-            }
-            else
-            {
-                Serial.println(F("❌ No se pudo abrir archivo p/ registrar fin"));
-            }
-
-            // 🖥️ Actualizar LCD
-            lcd.clear();
-            lcd.setCursor(0, 0);
-            lcd.print(F("Medicion X OFF"));
-            lcd.setCursor(0, 1);
-            lcd.print(F("Tension < 1,0 V"));
-            // 🧭 Mensaje serie
-            Serial.println(F("Sistema terminó medición completa de descarga"));
-        }
-    }
-    // --------------------------------------------------------
-    // Paso 4: LÓGICA DE MEDICIÓN PERIÓDICA
+    // Paso 3: LÓGICA DE MEDICIÓN PERIÓDICA
     // Solo si la medición está activa, y han transcurrido 10 s[s]
     // --------------------------------------------------------
     unsigned long currentMillis = millis();
@@ -345,15 +296,15 @@ void loop()
             lcd.clear(); // ← solo 1 vez
             lcdInicializado = true;
         }
-        // Lectura tensión [V]
+        // Leo tensión [V]
         tension = ina.getBusVoltage_V();
-        // Actualizar penúltima y última tensión
+        // Leo corriente [mA]]:
+        corriente = ina.getCurrent_mA() - offsetCorriente; // [mA]
+        // LeoPotencia [mW]]:
+        float potencia = ina.getBusPower(); // [mW]
+        // Actualizo penúltima y última [V]
         penultimaTension = ultimaTension;
         ultimaTension = tension;
-        // Lectura corriente [mA]]:
-        corriente = ina.getCurrent_mA() - offsetCorriente; // [mA]
-        // Lectura Potencia [mW]]:
-        float potencia = ina.getBusPower(); // [mW]
 
         // --------------------------------------------------------
         // ⬇️ FORMATO DE SALIDA ⬇️
@@ -379,5 +330,60 @@ void loop()
         // === SALIDA LCD 16 x 2 ===
         // --------------------------------------------------------
         mostrarLCD(tension, corriente, potencia, tiempo, estadoRele == RELE_ENCENDIDO ? 1 : 0); // Función LCD
+
+        // --------------------------------------------------------
+        // Paso 4: LÓGICA DETENCIÓN.
+        // -> medición activa, relé encendido y tensión es <= 1,0 [V], se detiene
+        // --------------------------------------------------------
+        if (medicionActiva && estadoRele == RELE_ENCENDIDO)
+        {
+            unsigned long tiempoActivo = millis() - inicioMedicionMillis;
+            // ✅ Solo permite detención después de 80 [s]]
+            if (tiempoActivo >= 80000) // 80 [s] ⚙️
+            {
+                // ✅ Verifica última y penúltima medición
+                if (ultimaTension <= 1.0 && penultimaTension <= 1.0) // ⚙️ Tensión detención
+                {
+                    Serial.println(F("⚠️ Tensión <= 1,0 [V] en 80 y 90 [S] c/ Relé activo. Medición detenida.")); // Alerta
+                    medicionActiva = false;                                                                      // Desactiva medición
+                    previousMillis = 0;                                                                          // Reinicia contador
+                    inicioMedicionMillis = 0;                                                                    // Reinicia marcador inicio
+                    lcdInicializado = false;                                                                     // ← preparo LCD p/ borrado único próx. medición
+
+                    // 🔁 Apaga relé y reinicio estado
+                    digitalWrite(pinRele, LOW);
+                    estadoRele = RELE_APAGADO;
+                    tiempoCambioEstado = 0;
+
+                    // 🕒 Obtener fecha/hora actual RTC
+                    RtcDateTime now = Rtc.GetDateTime();
+
+                    // 📝 Abrir archivo y registrar fin
+                    if (archivo.open(nombreArchivo, O_WRITE | O_APPEND))
+                    {
+                        archivo.println(F("Fin de medicion"));
+
+                        // 🕒 Actualizar fecha de modificación
+                        archivo.timestamp(T_WRITE, now.Year(), now.Month(), now.Day(), now.Hour(), now.Minute(), now.Second());
+
+                        archivo.flush();
+                        archivo.close();
+                    }
+                    else
+                    {
+                        Serial.println(F("❌ No se pudo abrir archivo p/ registrar fin"));
+                    }
+
+                    // 🖥️ Actualizar LCD
+                    lcd.clear();
+                    lcd.setCursor(0, 0);
+                    lcd.print(F("Medicion X OFF"));
+                    lcd.setCursor(0, 1);
+                    lcd.print(F("Tension < 1,0 V"));
+                    // 🧭 Mensaje serie
+                    Serial.println(F("Sistema terminó medición completa de descarga"));
+                }
+            }
+        }
     }
 }
